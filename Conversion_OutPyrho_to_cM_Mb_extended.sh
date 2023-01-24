@@ -34,7 +34,7 @@ third column: r (per-site per-generation recombination rate)
 #The conversion of pyrho output (r) to cM and cM/Mb is implemented in the script called convert_Output_pyrho_cM_Mb.awk. 
 #The details of the conversion:
 
-    W=$2-$1 #interval or window size
+        W=$2-$1 #interval or window size
 	r=$3 #r
 	cM=100*W*r # due to cM
 	cMb=r*1e+8 #cM/Mb is calculated as 100*W*r/1e-6*w , simplfied is equal to r*1e+8
@@ -55,7 +55,7 @@ awk -f $Script/convert_Output_pyrho_cM_Mb.awk $IN/chr_${a}_ContRes0_n38_Pen20_W5
 
 echo "chr${a} from r to cM/Mb and Genetic Map (cM)"
 
-#The output contains first column: start position, second column: end position, third column: cM/Mb. fourth column: genetic Map, fifth column: interval where recombination rate was calculated  
+#The output contains first column: start position, second column: end position, third column: cM/Mb, fourth column: genetic Map, fifth column: interval where recombination rate was calculated  
 
 
 
