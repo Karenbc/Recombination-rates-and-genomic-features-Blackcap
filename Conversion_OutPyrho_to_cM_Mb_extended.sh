@@ -1,10 +1,16 @@
 #!/bin/bash
 
+##Convert r (recombination rate per site per generation) to centiMorgan/Megabase
 
-#my folders
 
+#Folders
+
+
+#Output of pyrho
 IN=Optimize_RecRates_Output
+#Output path
 OUT=ContRes0_n38_Pen20_W50_convert_2Pos
+#Command for conversion
 Script=/home/bascon.c/scripts/Pyrho/Coversions
 
 
