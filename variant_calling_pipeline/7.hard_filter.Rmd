@@ -1,0 +1,258 @@
+---
+params:
+  user: "Andrea Bours"
+  vcf_type: "snp"
+  filename: "snp.table"
+  QD_gatk: 2.0
+  FS_gatk: 60.0
+  SOR_gatk: 3.0
+  MQ_gatk: 40.0
+  MQRankSum_gatk: -12.5
+  ReadPosRankSum_gatk: -8.0
+  QD_sugg: 2.5
+  FS_sugg: 45.0
+  SOR_sugg: 3.0
+  MQ_sugg: 40.0
+  MQRankSum_sugg: -12.5
+  ReadPosRankSum_sugg: -8.0
+title: "Hard filtering of final_`r params$vcf_type`.vcf.gz"
+subtitle: "Based on a script by Andrea Bours"
+author: "`r params$user`"
+date: "`r format(Sys.time(), '%B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "~/variant_calling/gvcf/vcf")
+```
+
+```{r eval setup, include=FALSE}
+QD_eval <- params$QD_gatk!=params$QD_sugg
+FS_eval <- params$FS_gatk!=params$FS_sugg
+SOR_eval <- params$SOR_gatk!=params$SOR_sugg
+MQ_eval <- params$MQ_gatk!=params$MQ_sugg
+MQRankSum_eval <- params$MQRankSum_gatk!=params$MQRankSum_sugg
+ReadPosRankSum_eval <- params$ReadPosRankSum_gatk!=params$ReadPosRankSum_sugg
+```
+
+```{r library, include=FALSE}
+library("tidyverse")
+```
+
+```{r loading, include=FALSE}
+#set the working directory and load in the table created in 6a.subsetvcf_table_snp_script.sh
+variant_table <- read_delim(params$filename, "\t", escape_double = FALSE, trim_ws = TRUE)
+```
+
+```{r adjusting table, include=FALSE}
+#before making the plots a bit of data wrangling is needed. I'll drop column 1 and 19 from the table.
+variant_table<-variant_table[-c(1,19)]
+```
+
+##Hard filtering of `r params$vcf_type`.vcf.gz 
+
+```{r gatk_recommendations, include=FALSE}
+#basic gatk filter recommendations
+variant_table$gatk_filters <- "PASS"
+variant_table$gatk_filters[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_gatk <- table(variant_table$gatk_filters)
+```
+
+```{r my_suggestions, include=FALSE}
+#this is what I suggest to do with the filters
+variant_table$gatk_filters_sugg <- "PASS"
+variant_table$gatk_filters_sugg[variant_table$QD < params$QD_sugg | variant_table$FS > params$FS_sugg | variant_table$SOR > params$SOR_sugg | variant_table$MQ < params$MQ_sugg | variant_table$MQRankSum < params$MQRankSum_sugg | variant_table$ReadPosRankSum < params$ReadPosRankSum_sugg] <- "FAILED"
+filters_sugg <- table(variant_table$gatk_filters_sugg)
+```
+
+(total amount of variants is `r nrow(variant_table) %>% format(big.mark = " ")` in the final_`r params$vcf_type`.vcf.gz)
+
+Per filter there will be shown two graphs, the first is the overall distribution of the filter value over all variants and the second is how the distribution looks like when applying the GATK recommendations of all filters except the one in the figure above (this is to see what would happen if we add this filter). GATK filter recommendations fail `r filters_gatk[["FAILED"]][1] %>% format(big.mark = " ")` variants. When adjustments to the GATK filters are made these are visualized by the dotted lines in the plots.
+
+For more information see: https://gatk.broadinstitute.org/hc/en-us/articles/360035531112--How-to-Filter-variants-either-with-VQSR-or-by-hard-filtering and https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants
+
+#QD
+GATK recommends to remove < `r params$QD_gatk`
+
+```{r QD_plot1, echo=FALSE, warning=FALSE}
+#density plot of QD
+plot_QD<-ggplot(variant_table, aes(QD))+geom_density(fill="blue", alpha=0.5)+geom_vline(xintercept=params$QD_gatk)+theme_classic()
+plot_QD
+```
+
+```{r QD_plot2, echo=FALSE, warning=FALSE}
+#plotting all filters except for QD
+variant_table$except_QD <- "PASS"
+variant_table$except_QD[variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_except_QD <- table(variant_table$except_QD)
+plot_except_QD<-ggplot(variant_table, aes(QD, fill=except_QD))+geom_density(alpha=0.5)+geom_vline(xintercept=params$QD_gatk)+geom_vline(xintercept=params$QD_sugg, linetype="dotted")+ theme_classic()
+plot_except_QD
+```
+
+```{r sugg_QD, eval=QD_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_QD <- "PASS"
+variant_table$sugg_QD[variant_table$QD < params$QD_sugg | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_sugg_QD <- table(variant_table$sugg_QD)
+```
+
+Without the QD filter set: Failed=`r filters_except_QD[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendation for QD is `r "-" (filters_gatk[["FAILED"]][1], filters_except_QD[["FAILED"]][1]) %>% format(big.mark = " ")` more variants filtered.
+
+```{r QD conditional text, eval=QD_eval, echo=FALSE, warning=FALSE, include=FALSE}
+QD_conditional_text <- print(paste("The QD filter is adjusted and placed at <", params$QD_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_QD[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_QD[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(QD_eval, QD_conditional_text, "")`*
+
+#FS
+GATK recommends to remove FS > `r params$FS_gatk`
+
+```{r FS_plot1, echo=FALSE, warning=FALSE}
+plot_FS<-ggplot(variant_table, aes(FS))+geom_density(fill="blue", alpha=0.5)+scale_x_log10() + geom_vline(xintercept = params$FS_gatk)+ theme_classic()
+plot_FS
+```
+
+```{r FS_plot2, echo=FALSE, warning=FALSE}
+variant_table$except_FS <- "PASS"
+variant_table$except_FS[variant_table$QD < params$QD_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_except_FS <- table(variant_table$except_FS)
+plot_except_FS<-ggplot(variant_table, aes(FS, fill=except_FS))+geom_density(alpha=0.5)+scale_x_log10() + geom_vline(xintercept = params$FS_gatk)+geom_vline(xintercept=params$FS_sugg, linetype="dotted")+ theme_classic()
+plot_except_FS
+```
+
+```{r sugg_FS, eval=FS_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_FS <- "PASS"
+variant_table$sugg_FS[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_sugg | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_sugg_FS <- table(variant_table$sugg_FS)
+```
+
+Without the FS filter set: Failed=`r filters_except_FS[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendations for FS set is `r "-" (filters_gatk[["FAILED"]][1], filters_except_FS[["FAILED"]][1]) %>% format(big.mark = " ")` more variants filtered.
+
+```{r FS conditional text, eval=FS_eval, echo=FALSE, warning=FALSE, include=FALSE}
+FS_conditional_text <- print(paste("The FS filter is adjusted and placed at >", params$FS_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_FS[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_FS[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(FS_eval, FS_conditional_text, "")`*
+
+#SOR
+GATK recommends to filter > `r params$SOR_gatk`
+
+```{r SOR_plot1, echo=FALSE, warning=FALSE}
+plot_SOR<-ggplot(variant_table, aes(SOR))+geom_density(fill="blue", alpha=0.5)+ geom_vline(xintercept = params$SOR_gatk)+theme_classic()
+plot_SOR
+```
+
+```{r SOR_plot2, echo=FALSE, warning=FALSE}
+variant_table$except_SOR <- "PASS"
+variant_table$except_SOR[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_except_SOR <- table(variant_table$except_SOR)
+plot_except_SOR<-ggplot(variant_table, aes(SOR, fill=except_SOR))+geom_density(alpha=0.5)+ geom_vline(xintercept = params$SOR_gatk)+geom_vline(xintercept=params$SOR_sugg, linetype="dotted")+theme_classic()
+plot_except_SOR
+```
+
+```{r sugg_SOR, eval=SOR_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_SOR <- "PASS"
+variant_table$sugg_SOR[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_sugg | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_sugg_SOR <- table(variant_table$sugg_SOR)
+```
+
+Without the SOR filter set: Failed=`r filters_except_SOR[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendation for SOR set is `r "-" (filters_gatk[["FAILED"]][1], filters_except_SOR[["FAILED"]][1]) %>% format(big.mark = " ")` variants more filtered.
+
+```{r SOR conditional text, eval=SOR_eval, echo=FALSE, warning=FALSE, include=FALSE}
+SOR_conditional_text <- print(paste("The SOR filter is adjusted and placed at >", params$SOR_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_SOR[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_SOR[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(SOR_eval, SOR_conditional_text, "")`*
+
+#MQ
+GATK recommends to filter < `r params$MQ_gatk`
+
+```{r MQ_plot1, echo=FALSE, warning=FALSE}
+plot_MQ<-ggplot(variant_table, aes(MQ))+geom_density(fill="blue", alpha=0.5)+ geom_vline(xintercept = params$MQ_gatk)+theme_classic()
+plot_MQ
+```
+
+```{r MQ_plot2, echo=FALSE, warning=FALSE}
+variant_table$except_MQ <- "PASS"
+variant_table$except_MQ[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_except_MQ <- table(variant_table$except_MQ)
+plot_except_MQ<-ggplot(variant_table, aes(MQ, fill=except_MQ))+geom_density(alpha=0.5)+ geom_vline(xintercept = params$MQ_gatk)+geom_vline(xintercept=params$MQ_sugg, linetype="dotted")+theme_classic()
+plot_except_MQ
+```
+
+```{r sugg_MQ, eval=MQ_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_MQ <- "PASS"
+variant_table$sugg_MQ[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_sugg | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_sugg_MQ <- table(variant_table$sugg_MQ)
+```
+
+Without the MQ filter set: Failed=`r filters_except_MQ[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendation for MQ set is `r "-" (filters_gatk[["FAILED"]][1], filters_except_MQ[["FAILED"]][1]) %>% format(big.mark = " ")` variants more filtered. 
+
+```{r MQ conditional text, eval=MQ_eval, echo=FALSE, warning=FALSE, include=FALSE}
+MQ_conditional_text <- print(paste("The MQ filter is adjusted and placed at <", params$MQ_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_MQ[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_MQ[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(MQ_eval, MQ_conditional_text, "")`*
+
+#MQRankSum
+GATK recommends to filter < `r params$MQRankSum_gatk`
+
+```{r MQRankSum_plot1, echo=FALSE, warning=FALSE}
+plot_MQRankSum<-ggplot(variant_table, aes(MQRankSum))+geom_density(fill="blue", alpha=0.5)+geom_vline(xintercept = params$MQRankSum_gatk) + theme_classic()
+plot_MQRankSum
+```
+
+```{r MQRankSum_plot2, echo=FALSE, warning=FALSE}
+variant_table$except_MQRankSum <- "PASS"
+variant_table$except_MQRankSum[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_except_MQRankSum <- table(variant_table$except_MQRankSum)
+plot_except_MQRankSum<-ggplot(variant_table, aes(MQRankSum, fill=except_MQRankSum))+geom_density(alpha=0.5)+geom_vline(xintercept = params$MQRankSum_gatk)+geom_vline(xintercept=params$MQRankSum_sugg, linetype="dotted")+theme_classic()
+plot_except_MQRankSum
+```
+
+```{r sugg_MQRankSum, eval=MQRankSum_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_MQRankSum <- "PASS"
+variant_table$sugg_MQRankSum[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_sugg | variant_table$ReadPosRankSum < params$ReadPosRankSum_gatk] <- "FAILED"
+filters_sugg_MQRankSum <- table(variant_table$sugg_MQRankSum)
+```
+
+Without the MQRankSum filter set: Failed=`r filters_except_MQRankSum[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendations for MQRankSum set is `r "-" (filters_gatk[["FAILED"]][1], filters_except_MQRankSum[["FAILED"]][1]) %>% format(big.mark = " ")` more variants filtered.
+
+```{r MQRankSum conditional text, eval=MQRankSum_eval, echo=FALSE, warning=FALSE, include=FALSE}
+MQRankSum_conditional_text <- print(paste("The MQRankSum filter is adjusted and placed at <", params$MQRankSum_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_MQRankSum[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_MQRankSum[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(MQRankSum_eval, MQRankSum_conditional_text, "")`*
+
+#ReadPosRankSum
+GATK recommends to filter < `r params$ReadPosRankSum_gatk`
+
+```{r ReadPosRankSum_plot1, echo=FALSE, warning=FALSE}
+plot_ReadPosRankSum<-ggplot(variant_table, aes(ReadPosRankSum))+geom_density(fill="blue", alpha=0.5)+ geom_vline(xintercept = params$ReadPosRankSum_gatk) + theme_classic()
+plot_ReadPosRankSum
+```
+
+```{r ReadPosRankSum_plot2, echo=FALSE, warning=FALSE}
+variant_table$except_ReadPosRankSum <- "PASS"
+variant_table$except_ReadPosRankSum[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk] <- "FAILED"
+filters_except_ReadPosRankSum <- table(variant_table$except_ReadPosRankSum)
+plot_except_ReadPosRankSum<-ggplot(variant_table, aes(ReadPosRankSum, fill=except_ReadPosRankSum))+geom_density(alpha=0.5)+geom_vline(xintercept = params$ReadPosRankSum_gatk)+geom_vline(xintercept=params$ReadPosRankSum_sugg, linetype="dotted")+theme_classic()
+plot_except_ReadPosRankSum
+```
+
+```{r sugg_ReadPosRankSum, eval=ReadPosRankSum_eval, echo=FALSE, warning=FALSE}
+variant_table$sugg_ReadPosRankSum <- "PASS"
+variant_table$sugg_ReadPosRankSum[variant_table$QD < params$QD_gatk | variant_table$FS > params$FS_gatk | variant_table$SOR > params$SOR_gatk | variant_table$MQ < params$MQ_gatk | variant_table$MQRankSum < params$MQRankSum_gatk | variant_table$ReadPosRankSum < params$ReadPosRankSum_sugg] <- "FAILED"
+filters_sugg_ReadPosRankSum <- table(variant_table$sugg_ReadPosRankSum)
+```
+
+Without the ReadPosRankSum filter set: Failed=`r filters_except_ReadPosRankSum[["FAILED"]][1] %>% format(big.mark = " ")`, thus differences with GATK recommendation for ReadPosRankSum set is `r "-" (filters_gatk[["FAILED"]][1], filters_except_ReadPosRankSum[["FAILED"]][1]) %>% format(big.mark = " ")` variants more filtered.
+
+```{r ReadPosRankSum conditional text, eval=ReadPosRankSum_eval, echo=FALSE, warning=FALSE, include=FALSE}
+ReadPosRankSum_conditional_text <- print(paste("The ReadPosRankSum filter is adjusted and placed at <", params$ReadPosRankSum_sugg, "(see dotted line above), adjusting results in", "-" (filters_sugg_ReadPosRankSum[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " "), "more variants filtered out in a total of", filters_sugg_ReadPosRankSum[["FAILED"]][1] %>% format(big.mark = " "), "variants filtered out."))
+
+```
+*`r ifelse(ReadPosRankSum_eval, ReadPosRankSum_conditional_text, "")`*
+
+*When adjusting the filters as suggested above, the amount of failed variants= `r filters_sugg[["FAILED"]][1] %>% format(big.mark = " ")`, which is a difference of `r "-" (filters_sugg[["FAILED"]][1], filters_gatk[["FAILED"]][1]) %>% format(big.mark = " ")` more variants failed compared to the recommended filter settings.*
+

@@ -1,0 +1,17 @@
+rmarkdown::render("~/variant_calling/pipeline/pipeline_to_share/7.hard_filter.Rmd", params=list(
+  user= "Andrea Bours",
+  vcf_type= "snp",
+  filename= "snp.table",
+  QD_gatk= 2.0,
+  FS_gatk= 60,
+  SOR_gatk= 3.0,
+  MQ_gatk= 40.0,
+  MQRankSum_gatk= -12.5,
+  ReadPosRankSum_gatk= -8.0,
+  QD_sugg= 2.5,
+  FS_sugg= 45.0,
+  SOR_sugg= 3.0,
+  MQ_sugg= 40.0,
+  MQRankSum_sugg= -12.5,
+  ReadPosRankSum_sugg= -8.0),
+  output_file = 'snp_hard_filter.html')
