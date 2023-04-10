@@ -1,5 +1,5 @@
 This repository holds the scripts used to estimate recombination rates and annotate the genome. 
-It contains four main folders:
+The scripts are distributed in four main folders:
 
 i)   **Calling Variants**: It contains the scripts used to call SNPs from re-sequencing data.
 
