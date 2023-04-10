@@ -50,7 +50,7 @@ echo "CpGcluster chromosomes done"
 
 
 
-##Merge chromosomes##
+##MERGE CHROMOSOMES##
 
 for a in  1 2 3 Z 4 5 6 7 8 9 10 11 12 W 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 w_unkown 33 
 
@@ -61,10 +61,12 @@ tail -n +2 $OUT/chr${a}_p50_CpGcluster.txt > $OUT/chr${a}_p50_CpGcluster_nohead.
 
 #Add chromosome name
 
-awk -v OFS='\t' {'print "chr_'"${a}"'",$2,$3'} $OUT/chr${a}_p50_CpGcluster_nohead.txt > $OUT/chr${a}_p50_CpGcluster.chr
+awk -v OFS='\t' {'print "chr_'"${a}"'",$2,$3,$4,$5,$6,$7,$8,$9,$10,$11'} $OUT/chr${a}_p50_CpGcluster_nohead.txt > $OUT/chr${a}_p50_CpGcluster.chr
 
-
+echo "chr_${a} name done"
 done
+
+#Merge all chromosomes 
 
 awk 'NF' $OUT/chr*_p50_CpGcluster.chr > All_chr_p50_CpGcluster_chrname_merged_head
 
@@ -72,8 +74,8 @@ awk 'NF' $OUT/chr*_p50_CpGcluster.chr > All_chr_p50_CpGcluster_chrname_merged_he
 
 
 
-##Filtering CpGi from CpGcluster output according to the length##
+##FILTER CpGi FROM CPGcluster OUTPUT##
 
 
 #Filter out CpGs shorter or equal to 50bp
-awk '$5 >= 50 {print $0}' All_chr_p50_CpGcluster_chrname_merged_head > All_chr_p50_CpGcluster_chrname_noheader_merged_head_Filt_50Lng
+awk '$5 >= 50 {print $0}' All_chr_p50_CpGcluster_chrname_merged_head > All_chr_p50_CpGcluster_chrname_merged_head_Filt_50Lng
