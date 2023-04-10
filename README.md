@@ -1,5 +1,5 @@
 This repository holds the scripts used to estimate recombination rates and annotate the genome. 
-It contains three main folders:
+It contains four main folders:
 
 i)   **Calling Variants**: It contains the scripts used to call SNPs from re-sequencing data.
 
@@ -12,4 +12,6 @@ The output of pyrho (r,recombination rate sper site per generation) for each chr
 
 For the calculation of recombination rates in non-overlapping windows with different sizes (50 kb ,100 kb, 200 kb, and 1 Mb), a python script under the name Rec_windows.py was used. This script calculates the average recombination rates weighted by the physical distance between each pair of sites where recombination was estimated. The script is implemented in PyrhOut_wtAvg_rates_windows.sh.
 
-iii) ****Genome annotation****: 
+iii) ****Genome annotation****: It contains scripts used for the anotation of the genome based on RNA-seq and Iso-Seq data. 
+
+iv) **Genomic features**: It contains scripts used for CpG island identification, calculation of nucleotide diversity (pi) and GC content across the genome.
