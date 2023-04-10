@@ -24,7 +24,7 @@ OUT=/home/bascon.c/CpG_GC/CpGcluster/NEW_Ref/chr_ss_bSylAtr1_1_fasta
 
 ## Extract chromosomes in FASTA format from the reference genome 
 
-for a in  1 2 3 Z 4 5 6 7 8 9 10 11 12 W 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 w_unkown 33 
+for a in  1 2 3 Z 4 5 6 7 8 9 10 11 12 W 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 
 
 do
 samtools faidx $IN/bSylAtr1.1.fasta chr_${a} > $OUT/chr${a}.fa
