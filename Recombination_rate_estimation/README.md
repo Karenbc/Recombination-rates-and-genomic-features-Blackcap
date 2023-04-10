@@ -1,3 +1,4 @@
+** Recmbination rate estimation**
 
 The rates of recombination were inferred using pyrho (Kamm et al., 2016; Spence & Song, 2019).
 
