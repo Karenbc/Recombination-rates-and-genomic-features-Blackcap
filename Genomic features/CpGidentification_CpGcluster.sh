@@ -20,7 +20,7 @@ IN=/home/bascon.c/Reference_genome/NEW_Reference_genome
 OUT=/home/bascon.c/CpG_GC/CpGcluster/NEW_Ref/chr_ss_bSylAtr1_1_fasta
 
 
-
+##CpGislands IDENTFICATION##
 
 ## Extract chromosomes in FASTA format from the reference genome 
 
