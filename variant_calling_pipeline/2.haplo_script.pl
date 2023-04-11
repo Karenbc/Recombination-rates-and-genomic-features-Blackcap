@@ -9,7 +9,7 @@ use strict;
 # ensure you have the sbatch folder created
 # modified by Andrea based on GATK best practices 2019
 # the first part of the script is to make multiple scripts in one go from a template, in which different variables can be provided dependent on input files, which is accessed through haplo_variables.txt. The bash script is written and placed into a scripts folder specified in line 39
-# haplo_variables.txt, opened in line 17, contains on per line from left to right (separated by tabs): sample name; runtime estimate in hours. for example line see READ.me.
+# haplo_variables.txt, opened in line 17, contains on per line from left to right (separated by tabs): sample name; runtime estimate in hours. for example line see README.md.
 # line 20 specifies by what the variables above are replaced
 # above variables can be adjusted according to the needs of the data 
 my $qsub_template = do { local $/; <DATA> };
@@ -36,15 +36,15 @@ for my $line (@files) {
     close $OUT;
 
     system "sbatch < $sbatch_out";
-    system "mv *haplo.sh /home/bours/scripts";
+    system "mv *haplo.sh <path_to_dir>/scripts";
 } 
 
 close(IN); 
 
 # Here the actual bash script starts as will be made by the above perl command
 # for the submission specifics, the haplo_variables.txt provides names to distinguish jobs, and an estimated runtime necessary for the script to complete. 
-# memory requirement is specified at 40G, be aware that for back ground processes the actual memory usage specified in the commands is lower. NOTE: it's not useful to increase the memory requested as the programs don't require this and this way you don't penalize yourself in the cluster.
-# runtime requirement are based on trial and error, however calculations for estimates will be given in READ.me, buffer times are added in these calculations. This step takes time!
+# memory requirement is specified at 40G, be aware that for back ground processes the actual memory usage specified in the commands is lower. NOTE: it's not useful to increase the memory requested as the programs don't require this, of course depends on cluster set-up.
+# runtime requirement are based on trial and error, however calculations for estimates will be given in README.md, buffer times are added in these calculations. This step takes time!
 # checkpoints are there to help in restarting the script at controlled points. NOTE: occasionally before restarting the last file may need to be removed, to ensure a new file is created. 
 # checkpoints control if a file is made and contains data, and often also if anything went wrong while running the program (found by exception in log file).
 # adjust to your own email for slurm to report to and adjust the paths for standard out and error to create files in.
@@ -67,11 +67,11 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=40G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/!name!_haplo.%J.err
-#SBATCH --output=/home/bours/stdout/!name!_haplo.%J.out
+#SBATCH --error=<path_to_dir>/stdout/!name!_haplo.%J.err
+#SBATCH --output=<path_to_dir>/stdout/!name!_haplo.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -108,7 +108,7 @@ bam=!name!_final.bam
 log=${dir}/log
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's important to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_dir>/reference.fasta
 
 #######
 # start of the actual script to call haplotypes from the input.
