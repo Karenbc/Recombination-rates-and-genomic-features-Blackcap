@@ -28,7 +28,7 @@ for my $file ( @files ) {
     close $OUT;
 
     system "sbatch < $sbatch_out";
-    system "mv *genotypegvcfs_all_sites.sh /home/bours/scripts";
+    system "mv *genotypegvcfs_all_sites.sh <path_to_dir>/scripts";
 } 
 
 # Here the actual bash script starts as will be made by the above perl command
@@ -60,11 +60,11 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=50G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/genotype_all_sites_!file!.%J.err
-#SBATCH --output=/home/bours/stdout/genotype_all_sites_!file!.%J.out
+#SBATCH --error=<path_to_dir>/stdout/genotype_all_sites_!file!.%J.err
+#SBATCH --output=<path_to_dir>/stdout/genotype_all_sites_!file!.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -92,13 +92,13 @@ dir=~/variant_calling
 gvcf=${dir}/gvcf
 vcf=${gvcf}/vcf
 pipeline=${dir}/pipeline
-beegfs=/mnt/beegfs/bours
+beegfs=/mnt/beegfs/<path_to_dir>
 
 # the log directory is made to be able to trouble shoot easier as std.err can be rerouted here and is then searchable by the check-points in this script which are written in stdout, note make a new log dir or empty old one before rerunning pipeline as similar named files will be over written in the current set up.
 log=${dir}/log
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's inmportant to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_dir>/reference.fasta
 
 #######
 # start of the actual process
