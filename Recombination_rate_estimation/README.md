@@ -4,6 +4,10 @@ The rates of recombination were inferred using pyrho (Kamm et al., 2016; Spence 
 
 The script called RecRates_inference_I_Pyrho.sh contains the computation of the lookup-table and the simulation step, named hyperparam, to find optimal parameters (window size and block penalty) for the estimation. The inference of recombination rates from real data (VCF files) is included in the script named RecRates_inference_II_pyrho.pl. This script generates several parallel jobs corresponding to each chromosome where recombination rate is inferred.
 
+The demographic data used for the recombination rate estimation, the computed lookup-table and hyperparam output for the blackcap is located in the folder called "Dataset". 
+
+The output of pyrho for the whole genome can be found in: 
+
 **Recombination rates conversion**
 
 The output of pyrho (r,recombination rate sper site per generation) for each chromosome is converted to cM/Mb with the script called Conversion_OutPyrho_to_cM_Mb_extended.sh using a script named convert_Output_pyrho_cM_Mb.awk.
