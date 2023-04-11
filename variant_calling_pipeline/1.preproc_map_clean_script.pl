@@ -37,7 +37,7 @@ for my $line (@files) {
     close $OUT;
 
     system "sbatch < $sbatch_out";
-    system "mv *preproc_map_clean.sh /home/bours/scripts";
+    system "mv *preproc_map_clean.sh <path_to_dir>/scripts";
 } 
 
 close(IN); 
