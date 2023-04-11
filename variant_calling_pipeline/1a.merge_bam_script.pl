@@ -37,7 +37,7 @@ for my $line (@files) {
     close $OUT;
 
     system "sbatch < $sbatch_out";
-    system "mv *merge_bam.sh /home/bours/scripts";
+    system "mv *merge_bam.sh <path_to_dir>/scripts";
 } 
 
 close(IN); 
@@ -67,11 +67,11 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=35G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/!merged!_merge_bam.%J.err
-#SBATCH --output=/home/bours/stdout/!merged!_merge_bam.%J.out
+#SBATCH --error=<path_to_stdout_directory>/!merged!_merge_bam.%J.err
+#SBATCH --output=<path_to_stdout_directory>/!merged!_merge_bam.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -121,7 +121,7 @@ gbam=${merged}_final.bam
 log=${dir}/log
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's important to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_>/reference.fasta
 
 #######
 # start of the actual merging pipeline
