@@ -69,8 +69,8 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=35G
 #  write std out and std error to these files
-#SBATCH --error=<path_to_stdout_directory>/!reseq_name!_preproc_map_clean.%J.err
-#SBATCH --output=<path_to_stdout_directory>/!reseq_name!_preproc_map_clean.%J.out
+#SBATCH --error=<path_to_dir>/stdout/!reseq_name!_preproc_map_clean.%J.err
+#SBATCH --output=<path_to_dir>/stdout/!reseq_name!_preproc_map_clean.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=<email>
@@ -131,7 +131,7 @@ rgroup=!rgroup!
 sample_name=!sample_name!
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's inmportant to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=<path_to_>/reference.fasta
+ref=<path_to_dir>/reference.fasta
 
 #######
 # start of the actual preprocessing, mapping and cleaning part of the pipeline.
