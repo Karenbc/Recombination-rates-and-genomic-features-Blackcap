@@ -14,11 +14,11 @@
 #  maximum requested memory
 #SBATCH --mem=100G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/subset_all_sites.%J.err
-#SBATCH --output=/home/bours/stdout/subset_all_sites.%J.out
+#SBATCH --error=<path_to_dir>/stdout/subset_all_sites.%J.err
+#SBATCH --output=<path_to_dir>/stdout/subset_all_sites.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -61,8 +61,8 @@ vcf=${gvcf}/vcf
 # the log directory is made to be able to trouble shoot easier as std.err can be rerouted here and is then searchable by the check-points in this script, note to self make a new log dir or empty old one before rerunning pipeline 
 log=${dir}/log
 
-# origin of the reference, note this is the old blackcap reference in my personal folder, change the reference accordingly note to self change to new reference (also in personal folder). It's important to prepare the reference for mapping, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+# origin of the reference, note this is the new blackcap reference in my personal folder, change the reference accordingly. It's important to prepare the reference for mapping, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
+ref=<path_to_dir>/reference.fasta
 
 #######
 # Start of the actual process
