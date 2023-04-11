@@ -11,7 +11,7 @@ use strict;
 # the first part of the script is to make multiple scripts in one go from a template, in which different variables can be provided dependent on desired output files. The bash script is written and placed into a scripts folder specified in line 31
 # variables are specified in line 19, contains per line from left to right (separated by tabs): the parts of the genome (1st...10th), on which the script should operate.
 # based on the variables one needs to make interval lists, which specifies the chromosome/scaffolds the variable represents.
-# additionally a list of all samples should be made, see READ.me. 
+# additionally a list of all samples should be made, see README.md. 
 # line 19 specifies by what the variables above are replaced
 # above variables can be adjusted according to the needs of the data
 my $qsub_template = do { local $/; <DATA> };
@@ -28,7 +28,7 @@ for my $file ( @files ) {
     close $OUT;
 
     system "sbatch < $sbatch_out";
-    system "mv *combinegvcfs.sh /home/bours/scripts";
+    system "mv *combinegvcfs.sh <path_to_dir>/scripts";
 } 
 
 # Here the actual bash script starts as will be made by the above perl command
@@ -60,11 +60,11 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=420G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/!file!_combinegvcfs.%J.err
-#SBATCH --output=/home/bours/stdout/!file!_combinegvcfs.%J.out
+#SBATCH --error=<path_to_dir>/stdout/!file!_combinegvcfs.%J.err
+#SBATCH --output=<path_to_dir>/stdout/!file!_combinegvcfs.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=highmem
@@ -91,13 +91,13 @@ name=!file!
 dir=~/variant_calling
 gvcf=${dir}/gvcf
 pipeline=${dir}/pipeline
-beegfs=/mnt/beegfs/bours
+beegfs=/mnt/beegfs/<path_to_dir>
 
 # the log directory is made to be able to trouble shoot easier as std.err can be rerouted here and is then searchable by the check-points in this script which are written in stdout, note make a new log dir or empty old one before rerunning pipeline as similar named files will be over written in the current set up.
 log=${dir}/log
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's important to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_dir>/reference.fasta
 
 #######
 # start of the actual process
