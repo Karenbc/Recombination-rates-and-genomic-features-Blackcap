@@ -14,11 +14,11 @@
 #  maximum requested memory
 #SBATCH --mem=50G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/subset_indel.%J.err
-#SBATCH --output=/home/bours/stdout/subset_indel.%J.out
+#SBATCH --error=<path_to_dir>/stdout/subset_indel.%J.err
+#SBATCH --output=<path_to_dir>/stdout/subset_indel.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -62,7 +62,7 @@ vcf=${gvcf}/vcf
 log=${dir}/log
 
 # origin of the reference, note this is the old blackcap reference in my personal folder, change the reference accordingly note to self change to new reference (also in personal folder). It's important to prepare the reference for mapping, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_dir>/reference.fasta
 
 #######
 # Start of the actual process
