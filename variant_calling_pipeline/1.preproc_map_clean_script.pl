@@ -10,7 +10,7 @@ use strict;
 # ensure you have the sbatch folder created, to which the scripts are written
 # modified by Andrea based on GATK best practices 2019
 # the first part of the script is to make multiple scripts in one go from a template, in which different variables can be provided dependent on input files, which is accessed through preproc_map_clean_variables.txt. The bash script is written and placed into a scripts folder specified in line 40
-# preproc_map_clean_variables.txt, opened in line 18, contains per line from left to right (separated by tabs): the base of resequencing files; the name of the sample; the path to R1; the path to R2; library; readgroup; parameter for optical duplicate pixel distance; runtime estimate in hours. for example line see READ.me.
+# preproc_map_clean_variables.txt, opened in line 18, contains per line from left to right (separated by tabs): the base of resequencing files; the name of the sample; the path to R1; the path to R2; library; readgroup; parameter for optical duplicate pixel distance; runtime estimate in hours. for example line see README.md.
 # line 21 specifies by what the variables above are replaced
 # above variables can be adjusted according to the needs of the data
 my $qsub_template = do { local $/; <DATA> };
@@ -45,8 +45,8 @@ close(IN);
 # Here the actual bash script starts as will be made by the above perl command
 # for the submission specifics, the preproc_map_clean_variables.txt provides names to distinguish jobs, and an estimated runtime necessary for the script to complete. 
 # the scripts specifies the use of 6 tasks, which are only used for the mapping step, thus when in resubmitting the script without mapping performed, adjust the amount of tasks to 1.
-# memory requirement is specified at 35G, be aware that for background processes the actual memory usage specified in the commands is lower. NOTE: it's not useful to increase the memory requested as the programs don't require this and this way you don't penalize yourself in the cluster.
-# runtime requirement are based on trial and error, however calculations for estimates will be given in READ.me, buffer times are already added in these calculations. 
+# memory requirement is specified at 35G, be aware that for background processes the actual memory usage specified in the commands is lower. NOTE: it's not useful to increase the memory requested as the programs don't require this, of course depends on cluster set-up.
+# runtime requirement are based on trial and error, however calculations for estimates will be given in README.md, buffer times are already added in these calculations. 
 # checkpoints are there to help in restarting the script at controlled points. NOTE: occasionally before restarting, the last file may need to be removed ensuring a new file is created by the script. 
 # checkpoints control if a file is made and contains data, and often also if anything went wrong while running the program (found by exception in log file).
 # adjust to your own email for Slurm to report to and adjust the paths for standard out and error to create files in.
@@ -69,11 +69,11 @@ __DATA__
 #  maximum requested memory
 #SBATCH --mem=35G
 #  write std out and std error to these files
-#SBATCH --error=/home/bours/stdout/!reseq_name!_preproc_map_clean.%J.err
-#SBATCH --output=/home/bours/stdout/!reseq_name!_preproc_map_clean.%J.out
+#SBATCH --error=<path_to_stdout_directory>/!reseq_name!_preproc_map_clean.%J.err
+#SBATCH --output=<path_to_stdout_directory>/!reseq_name!_preproc_map_clean.%J.out
 #  send a mail for job start, end, fail, etc.
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=bours@evolbio.mpg.de
+#SBATCH --mail-user=<email>
 #  which partition?
 #  there are global,testing,highmem,standard,fast
 #SBATCH --partition=standard
@@ -131,7 +131,7 @@ rgroup=!rgroup!
 sample_name=!sample_name!
 
 # origin of the reference, note this is the new renamed_reordered blackcap reference in my personal folder, change the reference accordingly. It's inmportant to prepare the reference for use, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
-ref=/home/bours/reference/renamed_reorder_new_reference.fasta
+ref=<path_to_>/reference.fasta
 
 #######
 # start of the actual preprocessing, mapping and cleaning part of the pipeline.
