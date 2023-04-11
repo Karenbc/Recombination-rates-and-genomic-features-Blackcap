@@ -61,7 +61,7 @@ vcf=${gvcf}/vcf
 # the log directory is made to be able to trouble shoot easier as std.err can be rerouted here and is then searchable by the check-points in this script, note to self make a new log dir or empty old one before rerunning pipeline 
 log=${dir}/log
 
-# origin of the reference, note this is the old blackcap reference in my personal folder, change the reference accordingly note to self change to new reference (also in personal folder). It's important to prepare the reference for mapping, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
+# origin of the reference, note this is the old blackcap reference in my personal folder, change the reference accordingly. It's important to prepare the reference for mapping, with bwa index, Picard CreateSequenceDictionary and Samtools faidx (these files should be in same folder as reference)
 ref=<path_to_dir>/reference.fasta
 
 #######
