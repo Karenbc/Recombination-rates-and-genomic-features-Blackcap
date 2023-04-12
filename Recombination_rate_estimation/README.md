@@ -6,7 +6,7 @@ The script called RecRates_inference_I_Pyrho.sh contains the computation of the 
 
 The demographic data used for the recombination rate estimation, the computed lookup-table and hyperparam output for the blackcap is located in the folder called "Dataset". 
 
-The output of pyrho for the whole genome can be found in: 
+The output of pyrho for the whole genome can be found in: https://zenodo.org/deposit/7813728#
 
 **Recombination rates conversion**
 
